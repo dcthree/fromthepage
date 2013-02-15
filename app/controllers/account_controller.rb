@@ -16,6 +16,7 @@ class AccountController < ApplicationController
     logger.debug "In accountcontroller signin"
     self.current_user = User.authenticate(params[:login], params[:password])
     if logged_in?
+      logger.debug "User is logged in"
       if params[:remember_me] == "1"
         self.current_user.remember_me
         cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
