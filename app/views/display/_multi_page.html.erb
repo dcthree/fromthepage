@@ -1,4 +1,4 @@
-
+<%= logger.debug("In views/display/_mulit_page.html, and work.id=#{@work.id}") %>
 
 <div class="two-columns">
 	<div class="left-column">
@@ -24,6 +24,7 @@
 	    <% end %>
 	    <div class="inside-column">
 	   		<div class="thumbnail-container">
+			  <%= logger.debug("In views/display/_mulit_page.html, and work.id=#{@work.id} and page.id=#{page.id}") %>
 		    	<% if page.ia_leaf %>
 					<% thumb_url = "http://www.archive.org/download/#{page.work.ia_work.book_id}/page/leaf#{page.ia_leaf.leaf_number}_thumb.jpg" %>
 			      <%= link_to(image_tag(thumb_url),
@@ -39,12 +40,12 @@
 	        </div>
 	  
 	      <div>
-		      <h2>
+		      <h2>LLL
 		        <%= page.title %>
 	        </h2>
 		      <div>
 		        <% if page.xml_text %>
-		          <%= xml_to_html(page.xml_text, false) %>
+		          <%= raw(xml_to_html(page.xml_text, false)) %>
 		        <% else %>
 	              <p>
 	                <i>
@@ -98,7 +99,7 @@
       <div class="inside-column">
 		    <h2><%= @article.title %></h2>
 		    <% if @article.xml_text != nil && !@article.xml_text.empty? %>
-		    <%=  xml_to_html(@article.xml_text) %>
+		    <%=  raw(xml_to_html(@article.xml_text)) %>
 		    <% end %>
   		</div>
 		  <%= render :partial => 'article/article_links' %>
@@ -107,10 +108,10 @@
 			<div class="inside-column">
 		      <h2>Subjects</h2>
 		      <p>
-	        <%= display_categories(@collection.categories, nil) do |category|
+	        <%= raw(display_categories(@collection.categories, nil) do |category|
 	                controller.render_to_string(:partial => '/category/category_link_for_work',
 	                       :locals => { :category => category })
-	            end %>
+	            end) %>
 		      </p>
 			</div>
 		<% end %>
