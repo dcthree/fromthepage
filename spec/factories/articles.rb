@@ -4,24 +4,10 @@ FactoryGirl.define do
     title  "joejoejoe"
     source_text  "password"
     lock_version 0
-    collection_id 1
+
+
+    :collection
   end
 
-=begin
-  factory :article_version do
-    title "hjoehjoe"
-    source_text "jdjdjddj"
-    :article
-  end
-=end
-=begin
-  factory :user2, class: User do
-    login  "moemoemoe"
-    password  "password"
-    password_confirmation  "password"
-    display_name  "moemoemoe"
-    print_name  "moemoemoe"
-    email  "moe@example.com"
-  end
-=end
+>>>>>>> 83236e65b6c85706bb4564ca4a596da2923154b0
 end

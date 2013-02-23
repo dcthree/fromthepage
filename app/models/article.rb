@@ -52,6 +52,8 @@ class Article < ActiveRecord::Base
   # De-Dup Support
   #######################
   def possible_duplicates
+    logger.debug "------------------------------"
+    logger.debug "article.possible_duplicates"
     # take each element of this article name
     words = self.title.tr(',.', ' ').split(' ')
     # sort it by word length, longest to shortest
@@ -59,13 +61,17 @@ class Article < ActiveRecord::Base
     words.reverse!
     # for each word
     all_matches = []
-#    logger.debug("DEBUG: matching #{words}")
+    logger.debug("DEBUG: matching #{words}")
     words.each do |word|
       # find articles in the same collection
       # whose title contains that word
       logger.debug("the word is #{word}")
+<<<<<<< HEAD
+=======
+      logger.debug("@collection.id: #{self.collection.id}")
+>>>>>>> 83236e65b6c85706bb4564ca4a596da2923154b0
       current_matches =
-        @collection.articles.where("title like ?", "%#{word}%" )
+        self.collection.articles.where("title like ?", "%#{word}%" )
         # @collection.articles.find(:all, :conditions => ["title like ?", "%#{word}%"] )
       current_matches.delete self
 #      logger.debug("DEBUG: #{current_matches.size} matches for #{word}")
@@ -80,6 +86,8 @@ class Article < ActiveRecord::Base
     end
 #    logger.debug("DEBUG: found #{all_matches.size} matches:")
 #    logger.debug("DEBUG: #{all_matches.inspect}")
+    logger.debug("at the end of article.possible_duplicates")
+    logger.debug("--------------------------------------")
     return all_matches
   end
 
@@ -89,15 +97,18 @@ class Article < ActiveRecord::Base
   #######################
   # XML Source support
   #######################
+  # tests
   def clear_links
     # clear out the existing links to this page
     ArticleArticleLink.delete_all("source_article_id = #{self.id}")     
   end
 
+  # tested
   def create_link(article, display_text)
-    link = ArticleArticleLink.new(:source_article => self,
-                                  :target_article => article,
-                                  :display_text => display_text)
+    link = ArticleArticleLink.new
+    link.source_article = self
+    link.target_article = article
+    link.display_text = display_text
     link.save!
     return link.id        
   end
@@ -106,10 +117,12 @@ class Article < ActiveRecord::Base
   #######################
   # Version support
   #######################
+  # tested
   def create_version
     if !@text_dirty or !@title_dirty
       return
     end
+
     version = ArticleVersion.new
     # copy article data
     version.title = self.title
@@ -120,14 +133,15 @@ class Article < ActiveRecord::Base
     version.user = User.current_user
     
     # now do the complicated version update thing
+
     previous_version = 
-      ArticleVersion.find(:conditions => ["article_id = ?", self.id],
+      ArticleVersion.find(:all, :conditions => ["article_id = ?", self.id],
                        :order => "version DESC")
 #       ArticleVersion.find(:first, 
 #                        :conditions => ["article_id = ?", self.id],
 #                        :order => "version DESC")
-    if previous_version
-      version.version = previous_version.version + 1
+    if previous_version.first
+      version.version = previous_version.first.version + 1
     end
     version.save!      
   end
