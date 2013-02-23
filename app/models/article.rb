@@ -89,15 +89,18 @@ class Article < ActiveRecord::Base
   #######################
   # XML Source support
   #######################
+  # tests
   def clear_links
     # clear out the existing links to this page
     ArticleArticleLink.delete_all("source_article_id = #{self.id}")     
   end
 
+  # tested
   def create_link(article, display_text)
-    link = ArticleArticleLink.new(:source_article => self,
-                                  :target_article => article,
-                                  :display_text => display_text)
+    link = ArticleArticleLink.new
+    link.source_article = self
+    link.target_article = article
+    link.display_text = display_text
     link.save!
     return link.id        
   end
@@ -106,6 +109,7 @@ class Article < ActiveRecord::Base
   #######################
   # Version support
   #######################
+  # tested
   def create_version
     if !@text_dirty or !@title_dirty
       return
