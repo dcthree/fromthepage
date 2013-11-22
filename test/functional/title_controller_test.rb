@@ -4,7 +4,7 @@ require 'title_controller'
 # Re-raise errors caught by the controller.
 class TitleController; def rescue_action(e) raise e end; end
 
-class TitleControllerTest < Test::Unit::TestCase
+class TitleControllerTest < ActiveRecord::TestCase
   def setup
     @controller = TitleController.new
     @request    = ActionController::TestRequest.new

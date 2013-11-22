@@ -4,7 +4,7 @@ require 'display_controller'
 # Re-raise errors caught by the controller.
 class DisplayController; def rescue_action(e) raise e end; end
 
-class DisplayControllerTest < Test::Unit::TestCase
+class DisplayControllerTest < ActiveRecord::TestCase
   def setup
     @controller = DisplayController.new
     @request    = ActionController::TestRequest.new

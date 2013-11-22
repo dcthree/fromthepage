@@ -4,7 +4,7 @@ require 'work_controller'
 # Re-raise errors caught by the controller.
 class WorkController; def rescue_action(e) raise e end; end
 
-class WorkControllerTest < Test::Unit::TestCase
+class WorkControllerTest < ActiveRecord::TestCase
   def setup
     @controller = WorkController.new
     @request    = ActionController::TestRequest.new

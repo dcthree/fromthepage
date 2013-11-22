@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TranscribeAuthorizationTest < Test::Unit::TestCase
+class TranscribeAuthorizationTest < ActiveRecord::TestCase
   fixtures :transcribe_authorizations
 
   # Replace this with your real tests.

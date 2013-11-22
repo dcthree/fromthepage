@@ -4,7 +4,7 @@ require 'article_version_controller'
 # Re-raise errors caught by the controller.
 class ArticleVersionController; def rescue_action(e) raise e end; end
 
-class ArticleVersionControllerTest < Test::Unit::TestCase
+class ArticleVersionControllerTest < ActiveRecord::TestCase
   def setup
     @controller = ArticleVersionController.new
     @request    = ActionController::TestRequest.new

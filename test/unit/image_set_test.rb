@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageSetTest < Test::Unit::TestCase
+class ImageSetTest < ActiveRecord::TestCase
   fixtures :image_sets
 
   # Replace this with your real tests.

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ArticleVersionTest < Test::Unit::TestCase
+class ArticleVersionTest < ActiveRecord::TestCase
   fixtures :article_versions
 
   # Replace this with your real tests.
