@@ -4,7 +4,7 @@ require 'dashboard_controller'
 # Re-raise errors caught by the controller.
 class DashboardController; def rescue_action(e) raise e end; end
 
-class DashboardControllerTest < ActiveRecord::TestCase
+class DashboardControllerTest < ActionController::TestCase
   def setup
     @controller = DashboardController.new
     @request    = ActionController::TestRequest.new

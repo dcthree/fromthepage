@@ -4,7 +4,7 @@ require 'image_set_controller'
 # Re-raise errors caught by the controller.
 class ImageSetController; def rescue_action(e) raise e end; end
 
-class ImageSetControllerTest < ActiveRecord::TestCase
+class ImageSetControllerTest < ActionController::TestCase
   def setup
     @controller = ImageSetController.new
     @request    = ActionController::TestRequest.new

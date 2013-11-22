@@ -4,7 +4,7 @@ require 'page_version_controller'
 # Re-raise errors caught by the controller.
 class PageVersionController; def rescue_action(e) raise e end; end
 
-class PageVersionControllerTest < ActiveRecord::TestCase
+class PageVersionControllerTest < ActionController::TestCase
   def setup
     @controller = PageVersionController.new
     @request    = ActionController::TestRequest.new

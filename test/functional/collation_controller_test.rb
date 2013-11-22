@@ -4,7 +4,7 @@ require 'collation_controller'
 # Re-raise errors caught by the controller.
 class CollationController; def rescue_action(e) raise e end; end
 
-class CollationControllerTest < ActiveRecord::TestCase
+class CollationControllerTest < ActionController::TestCase
   def setup
     @controller = CollationController.new
     @request    = ActionController::TestRequest.new

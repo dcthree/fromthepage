@@ -4,7 +4,7 @@ require 'transcribe_controller'
 # Re-raise errors caught by the controller.
 class TranscribeController; def rescue_action(e) raise e end; end
 
-class TranscribeControllerTest < ActiveRecord::TestCase
+class TranscribeControllerTest < ActionController::TestCase
   def setup
     @controller = TranscribeController.new
     @request    = ActionController::TestRequest.new
