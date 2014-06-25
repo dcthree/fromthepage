@@ -1,15 +1,17 @@
 class Work < ActiveRecord::Base
-  has_many :pages, :order => :position
+  has_many :pages, -> { order 'position' }
   belongs_to :owner, :class_name => 'User', :foreign_key => 'owner_user_id'
   belongs_to :collection
-  has_many :deeds, :order => 'created_at DESC'
+  has_many :deeds, -> { order 'created_at DESC' }
   has_one :ia_work
+  has_one :omeka_item
   has_one :work_statistic
-  
+
   has_and_belongs_to_many :scribes, :class_name => 'User', :join_table => :transcribe_authorizations
 
   after_save :update_statistic
 
+  attr_accessible :title, :description, :physical_description, :document_history, :permission_description, :location_of_composition, :author, :transcription_conventions
 
   def articles
     my_articles = []
@@ -22,7 +24,6 @@ class Work < ActiveRecord::Base
     logger.debug("DEBUG: articles=#{my_articles}")
     return my_articles
   end
-
 
   # TODO make not awful
   def reviews
@@ -48,12 +49,9 @@ class Work < ActiveRecord::Base
   end
 
   def update_statistic
-    unless self.work_statistic     
+    unless self.work_statistic
         self.work_statistic = WorkStatistic.new
     end
     self.work_statistic.recalculate
-    
   end
-
-
 end

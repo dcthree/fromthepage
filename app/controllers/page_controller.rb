@@ -1,23 +1,20 @@
 # handles administrative tasks for the page object
 class PageController < ApplicationController
-  require 'RMagick'
+  require 'image_helper'
   include ImageHelper
 
   before_filter :authorized?
 
   def authorized?
-    if logged_in? && current_user.owner
+    if user_signed_in? && current_user.owner
       if @work
-        redirect_to :controller => 'dashboard' unless @work.owner == current_user
+        redirect_to dashboard_path unless @work.owner == current_user
       end
     else
-      redirect_to :controller => 'dashboard' 
+      redirect_to dashboard_path
     end
   end
 
-
-  in_place_edit_for :page, :title
-  
   protect_from_forgery :except => [:set_page_title]
 
   def delete
@@ -54,9 +51,9 @@ class PageController < ApplicationController
     filename = @page.base_image
     if filename == nil || filename == ""
       # create a new filename
-      filename = "#{RAILS_ROOT}/public/images/working/upload/#{@page.id}.jpg"
+      filename = "#{Rails.root}/public/images/working/upload/#{@page.id}.jpg"
     end
-    File.open(filename, "wb") do |f| 
+    File.open(filename, "wb") do |f|
       f.write(params['page']['base_image'].read)
     end
     @page.base_image = filename
@@ -74,31 +71,38 @@ class PageController < ApplicationController
     else
       @page.move_lower
     end
-    redirect_to :controller => 'work', :action => 'pages_tab', :work_id => @work.id  
+    redirect_to :controller => 'work', :action => 'pages_tab', :work_id => @work.id
   end
-  
+
 # new page functions
   def new
     @page = Page.new
     @page.work = @work
   end
-  
+
   def create
     page = Page.new(params[:page])
     page.save!
-    redirect_to :controller => 'work', :action => 'pages_tab', :work_id => @work.id  
+    redirect_to :controller => 'work', :action => 'pages_tab', :work_id => @work.id
+  end
+
+  def update
+    page = Page.find(params[:id])
+    page.update_attributes(params[:page])
+    flash[:notice] = "Page updated successfully."
+    redirect_to :back
   end
 
 private
 
   def reduce_by_one(page)
     page.shrink_factor = page.shrink_factor + 1
-    shrink_file(page.scaled_image(0), 
+    shrink_file(page.scaled_image(0),
                 page.scaled_image(page.shrink_factor),
                 page.shrink_factor)
     page.save!
   end
-  
+
   def set_dimensions(page)
     image = Magick::ImageList.new(page.base_image)
     page.base_width = image.columns

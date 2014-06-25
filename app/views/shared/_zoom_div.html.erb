@@ -1,0 +1,7 @@
+<div class="viewer" style="height: 500px; width: 500px;">
+  <%= image_tag file_to_url(@page.base_image) %>
+</div>
+
+<%= javascript_tag do%>
+  $(".viewer").zoomer();
+<% end %>

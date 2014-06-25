@@ -1,5 +1,4 @@
-module XmlSourceProcessor 
-
+module XmlSourceProcessor
 
   @text_dirty = false
   def source_text=(text)
@@ -16,7 +15,6 @@ module XmlSourceProcessor
 #    debug("validate valid=#{valid}")
     debug("validate errors=#{errors.count}")
   end
-
 
   def validate_source
     debug('validate_source')
@@ -56,9 +54,9 @@ module XmlSourceProcessor
 
   ##############################################
   # All code to convert transcriptions from source
-  # format to canonical xml format belongs here. 
+  # format to canonical xml format belongs here.
   #
-  # 
+  #
   ##############################################
   def process_source
     if !@text_dirty
@@ -73,7 +71,6 @@ module XmlSourceProcessor
     xml_string = valid_xml_from_source(xml_string)
     self.xml_text = update_links_and_xml(xml_string)
   end
-
 
   def generate_preview
     xml_string = self.source_text
@@ -93,9 +90,9 @@ module XmlSourceProcessor
     else
       each_method_name = :each_line
     end
-    
+
     text.send(each_method_name, '[[') do |raw|
-      # remove the open brace 
+      # remove the open brace
       raw.gsub!('[[', '')
 
       # look for the closing brace ]]
@@ -106,7 +103,7 @@ module XmlSourceProcessor
           parts = tag.split('|')
           title = parts[0]
           display = parts[1]
-        else          
+        else
           title = tag.gsub(/\n/,' ')
           display = tag
         end
@@ -117,11 +114,10 @@ module XmlSourceProcessor
         end
       else
         processed << raw
-      end      
+      end
     end
     return processed
   end
-
 
   def canonicalize_title(title)
     # linebreaks -> spaces
@@ -143,7 +139,7 @@ module XmlSourceProcessor
     source = source || ""
     safe = source.gsub /\&/, '&amp;'
     safe.gsub! /\&amp;amp;/, '&amp;'
-    
+
     string = <<EOF
     <?xml version="1.0" encoding="ISO-8859-15"?>
       <page>
@@ -151,7 +147,6 @@ module XmlSourceProcessor
       </page>
 EOF
   end
-
 
   def update_links_and_xml(xml_string, preview_mode=false)
     # first clear out the existing links
@@ -200,13 +195,14 @@ EOF
   ##############################################
   def rename_article_links(old_title, new_title)
     # handle links of the format [[Old Title|Display Text]]
-    self.source_text=self.source_text.gsub(/\[\[#{old_title}\|/, "[[#{new_title}|")    
+    self.source_text=self.source_text.gsub(/\[\[#{old_title}\|/, "[[#{new_title}|")
     # handle links of the format [[Old Title]]
-    self.source_text=self.source_text.gsub(/\[\[#{old_title}\]\]/, "[[#{new_title}|#{old_title}]]")    
+    self.source_text=self.source_text.gsub(/\[\[#{old_title}\]\]/, "[[#{new_title}|#{old_title}]]")
     self.save!
   end
 
   def debug(msg)
     logger.debug("DEBUG: #{msg}")
   end
+
 end

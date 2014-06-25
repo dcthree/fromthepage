@@ -4,7 +4,7 @@
 #      t.column :source_text, :text
 #      # automated stuff
 #      t.column :created_on, :datetime
-#      t.column :lock_version, :integer, :default => 0 
+#      t.column :lock_version, :integer, :default => 0
 #    end
 class Article < ActiveRecord::Base
   include XmlSourceProcessor
@@ -14,23 +14,22 @@ class Article < ActiveRecord::Base
 
   has_and_belongs_to_many :categories, :uniq => true
   belongs_to :collection
-  has_many(:target_article_links,
-           { :foreign_key => "target_article_id",
-             :class_name => 'ArticleArticleLink',
-             :include => [:source_article],
-		     :order => "articles.title ASC"})
-  has_many(:source_article_links,
-           { :foreign_key => "source_article_id",
-             :class_name => 'ArticleArticleLink' })
-  has_many(:page_article_links,
-           { :include => [:page],
-		     :order => "pages.work_id, pages.position ASC" })
+  has_many(:target_article_links, { :foreign_key => "target_article_id", :class_name => 'ArticleArticleLink'})
+  scope :target_article_links, -> { include 'source_article' }
+  scope :target_article_links, -> { order "articles.title ASC" }
 
-  has_many :pages, :through => :page_article_links, :order => "pages.work_id, pages.position ASC"
+  has_many(:source_article_links, { :foreign_key => "source_article_id", :class_name => 'ArticleArticleLink' })
+  has_many(:page_article_links)
+  scope :page_article_links, -> { include 'page' }
+  scope :page_article_links, -> { order "pages.work_id, pages.position ASC" }
 
-  has_many :article_versions, :order => :version
+  has_many :pages, :through => :page_article_links
+  scope :pages, -> { order "pages.work_id, pages.position ASC" }
 
-  
+  has_many :article_versions
+  scope :article_versions, -> { order 'version' }
+
+
   after_save :create_version
 
   @title_dirty = false
@@ -42,7 +41,7 @@ class Article < ActiveRecord::Base
 
 
   #######################
-  # Related Articles 
+  # Related Articles
   #######################
   def related_article_ranks
 
@@ -51,7 +50,10 @@ class Article < ActiveRecord::Base
   #######################
   # De-Dup Support
   #######################
+  # tested
   def possible_duplicates
+    logger.debug "------------------------------"
+    logger.debug "article.possible_duplicates"
     # take each element of this article name
     words = self.title.tr(',.', ' ').split(' ')
     # sort it by word length, longest to shortest
@@ -59,14 +61,18 @@ class Article < ActiveRecord::Base
     words.reverse!
     # for each word
     all_matches = []
-#    logger.debug("DEBUG: matching #{words}")
+    logger.debug("DEBUG: matching #{words}")
     words.each do |word|
       # find articles in the same collection
       # whose title contains that word
+      # logger.debug("the word is #{word}")
+
+      # logger.debug("@collection.id: #{self.collection.id}")
+
       current_matches =
-        @collection.articles.find(:all, :conditions => ["title like ?", "%#{word}%"] )
-      current_matches.delete self
-#      logger.debug("DEBUG: #{current_matches.size} matches for #{word}")
+        self.collection.articles.where("id <> ? AND title like ?", self.id, "%#{word}%" )
+      # current_matches.delete self
+      #      logger.debug("DEBUG: #{current_matches.size} matches for #{word}")
       #    keep sort order for new words (append to previous list)
       #    if there's a match with the previous list, bump up that
       #    article
@@ -76,38 +82,42 @@ class Article < ActiveRecord::Base
       # merge with articles for previous words
       all_matches = matches_in_common + old_matches + new_matches
     end
-#    logger.debug("DEBUG: found #{all_matches.size} matches:")
-#    logger.debug("DEBUG: #{all_matches.inspect}")
+    #    logger.debug("DEBUG: found #{all_matches.size} matches:")
+    #    logger.debug("DEBUG: #{all_matches.inspect}")
+    logger.debug("at the end of article.possible_duplicates")
+    logger.debug("--------------------------------------")
     return all_matches
   end
-
-
 
 
   #######################
   # XML Source support
   #######################
+  # tested
   def clear_links
     # clear out the existing links to this page
-    ArticleArticleLink.delete_all("source_article_id = #{self.id}")     
+    ArticleArticleLink.delete_all("source_article_id = #{self.id}")
   end
 
+  # tested
   def create_link(article, display_text)
-    link = ArticleArticleLink.new(:source_article => self,
-                                  :target_article => article,
-                                  :display_text => display_text)
+    link = ArticleArticleLink.new
+    link.source_article = self
+    link.target_article = article
+    link.display_text = display_text
     link.save!
-    return link.id        
+    return link.id
   end
-  
 
   #######################
   # Version support
   #######################
+  # tested
   def create_version
     if !@text_dirty or !@title_dirty
       return
     end
+
     version = ArticleVersion.new
     # copy article data
     version.title = self.title
@@ -116,15 +126,14 @@ class Article < ActiveRecord::Base
     # set foreign keys
     version.article = self
     version.user = User.current_user
-    
+
     # now do the complicated version update thing
-    previous_version = 
-      ArticleVersion.find(:first, 
-                       :conditions => ["article_id = ?", self.id],
-                       :order => "version DESC")
-    if previous_version
-      version.version = previous_version.version + 1
+
+    previous_version = ArticleVersion.where(["article_id = ?", self.id]).order("version DESC").all
+    if previous_version.first
+      version.version = previous_version.first.version + 1
     end
-    version.save!      
+    version.save!
   end
 end
+

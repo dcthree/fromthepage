@@ -1,35 +1,38 @@
 source 'https://rubygems.org'
-gem "rails", "~> 2.3.17"
-#gem "sqlite3-ruby", :require => "sqlite3"
+gem "rails", "4.1.1"
 
-gem 'will_paginate' , '~> 2'
-gem 'rmagick'
-gem 'hpricot'
-gem 'oai'
-gem 'capistrano'
+gem 'pry'
 
-gem 'mysql'
+gem 'will_paginate' , '3.0.5'
+gem 'rmagick', '2.13.2', require: "RMagick"
+gem 'nokogiri'
+gem 'oai', git: "https://github.com/mispy/ruby-oai.git"
+gem 'capistrano', '~> 3.2.0'
+gem 'jquery-rails'
 
+gem 'mysql2','0.3.16'
 
-# bundler requires these gems in all environments
-# gem "nokogiri", "1.4.2"
-# gem "geokit"
+gem 'recaptcha', '0.3.6'
 
-group :development do
-  # bundler requires these gems in development
-  # gem "rails-footnotes"
-	gem 'mysql2','0.2.7'
-end
+gem 'omeka_client', git: 'https://github.com/benwbrum/omeka_client'
+
+gem 'acts_as_list'
+gem 'acts_as_tree'
+
+gem 'devise'
+gem 'devise-encryptable'
+
+gem 'protected_attributes'
 
 group :test do
-  # bundler requires these gems while running tests
-  # gem "rspec"
-  # gem "faker"
+  gem "database_cleaner"
+  gem "capybara"
+  gem "shoulda"
 end
 
-group :production do
-  # bundler requires these gems in development
-  # gem "rails-footnotes"
-#	gem 'ftools'
+group :development, :test do
+  gem 'rspec-rails', '~> 3.0.0.beta'
+  gem "factory_girl_rails", require: false
 end
 
+#- EOF

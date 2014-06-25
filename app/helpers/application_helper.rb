@@ -1,67 +1,73 @@
-# Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
-    
-  def html_block(tag)
-    render({ :partial => 'page_block/html_block', 
-             :locals => 
+
+    def html_block(tag)
+    render({ :partial => 'page_block/html_block',
+             :locals =>
               { :tag => tag,
                 :page_block => @html_blocks[tag],
                 :origin_controller => controller_name,
                 :origin_action => action_name
               }
           })
+
   end
 
 
   def file_to_url(filename)
-    filename.sub(/.*public/, "") 
+    if filename
+      filename.sub(/.*public/, "")
+    else
+      ""
+    end
   end
 
   # ripped off from
   # http://wiki.rubyonrails.org/rails/pages/CategoryTreeUsingActsAsTree
   def display_categories(categories, parent_id, &block)
-    ret = "<ul>\n" 
+    ret = "<ul>\n"
       for category in categories
         if category.parent_id == parent_id
           ret << display_category(category, &block)
         end
       end
-    ret << "</ul>\n" 
+    ret << "</ul>\n"
   end
 
   def display_category(category, &block)
-    ret = "<li>\n" 
-    ret << yield(category) 
+    ret = "<li>\n"
+    ret << yield(category)
     ret << display_categories(category.children, category.id, &block) if category.children.any?
-    ret << "</li>\n" 
+    ret << "</li>\n"
   end
 
-  
 
 
-  def deeds_for(options={}) 
+
+  def deeds_for(options={})
     limit = options[:limit] || 20
 
     conditions = nil;
     if options[:types]
       types = options[:types]
       types = types.map { |t| "'#{t}'"}
-      conditions = "deed_type IN (#{types.join(',')})"      
+      conditions = "deed_type IN (#{types.join(',')})"
     end
-    
+
 
     if options[:collection]
-      deeds = @collection.deeds.find(:all,  :limit => limit, :order => 'created_at DESC', :conditions => conditions)
+      deeds = @collection.deeds.where(conditions).order('created_at DESC').limit(limit)
     else
       restrict = " collections.restricted = 0 "
       conditions = conditions ? conditions + " AND " + restrict : restrict
-      deeds = Deed.find(:all, :limit => limit, :order => 'created_at DESC', :conditions => conditions, :include => :collection)
+      logger.debug "in application helper"
+      logger.debug "limit: #{limit}"
+      deeds = Deed.includes(:collection).where(conditions).order('created_at DESC').limit(limit).references(:collection)
     end
-    render({ :partial => 'deed/deeds', 
-             :locals => 
+    render({ :partial => 'deed/deeds',
+             :locals =>
               { :limit => limit,
                 :deeds => deeds,
-                :options => options 
+                :options => options
               }
           })
   end
@@ -71,7 +77,7 @@ module ApplicationHelper
     delta_minutes = (delta_seconds / 60).floor
     delta_hours = (delta_minutes / 60).floor
     delta_days = (delta_hours / 24).floor
-    
+
     if delta_days > 1
       "#{delta_days} days ago"
     elsif delta_days == 1
@@ -90,5 +96,6 @@ module ApplicationHelper
       "1 second ago"
     end
   end
+
 
 end

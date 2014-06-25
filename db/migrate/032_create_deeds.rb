@@ -12,22 +12,22 @@ class CreateDeeds < ActiveRecord::Migration
       t.column :note_id, :integer
       t.timestamps
     end
-    
+
     # migrate data
-    transcriptions = PageVersion.find(:all, :conditions => 'page_version=1')
+    transcriptions = PageVersion.where('page_version=1').all
     transcriptions.each do |pv|
       deed = self.deed_from_version(pv)
       deed.deed_type = Deed::PAGE_TRANSCRIPTION
       deed.save!
     end
-    
-    edits = PageVersion.find(:all, :conditions => 'page_version>1')
+
+    edits = PageVersion.where('page_version>1').all
     edits.each do |pv|
       deed = self.deed_from_version(pv)
       deed.deed_type = Deed::PAGE_EDIT
       deed.save!
     end
-    
+
     # add indexes
     add_index :deeds,  :article_id
     add_index :deeds,  :page_id
@@ -44,7 +44,7 @@ class CreateDeeds < ActiveRecord::Migration
   end
 
 
-  private 
+  private
   def self.deed_from_version(pv)
     deed = Deed.new
     deed.page_id = pv.page.id
